@@ -1,21 +1,38 @@
 use bevy::prelude::*;
+use grid::{Grid, Order};
 use rand::{distributions::Standard, prelude::Distribution, Rng};
+
+pub struct BoardPlugin;
+
+impl Plugin for BoardPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(Board::new(12, 12));
+    }
+}
 
 #[derive(Component)]
 struct Tile {
-    //size: Size
-    //tile: Img
-    //state:
-    //
+    // state:
 }
 
 #[derive(Bundle)]
 pub struct TileBundle {
     tile: Tile,
+    sprite: TileSprite,
+    //grid position?
     position: Position,
     color: Color,
     shape: Shape,
 }
+
+#[derive(Bundle)]
+pub struct TileSpriteBundle {
+    sprite: SpriteBundle,
+    atlas: TextureAtlas,
+}
+
+#[derive(Component)]
+pub struct TileSprite(Entity);
 
 #[derive(Component)]
 struct Position;
@@ -56,4 +73,15 @@ impl Distribution<Shape> for Standard {
     }
 }
 
-struct Grid;
+#[derive(Resource)]
+pub struct Board {
+    tiles: Grid<Option<Entity>>,
+}
+
+impl Board {
+    fn new(rows: usize, cols: usize) -> Self {
+        Board {
+            tiles: Grid::new_with_order(rows, cols, Order::ColumnMajor),
+        }
+    }
+}

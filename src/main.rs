@@ -23,5 +23,6 @@ fn main() {
     app.add_plugin(WorldInspectorPlugin::new())
         .insert_resource(ReportExecutionOrderAmbiguities);
 
-    app.add_plugin(MagicSetPlugin).run();
+    // app.add_plugin(MagicSetPlugin);
+    app.run();
 }
