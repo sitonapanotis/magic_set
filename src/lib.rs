@@ -19,6 +19,7 @@ pub struct MagicSetPlugin;
 impl Plugin for MagicSetPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(BoardPlugin);
+        app.add_systems(Startup, setup_camera);
         // app.add_plugin(TilemapPlugin)
         //     .add_event::<RemoveEvent>()
         //     .add_event::<MoveEvent>()
@@ -56,6 +57,10 @@ impl Plugin for MagicSetPlugin {
                 .register_inspectable::<Shape>();
         }
     }
+}
+
+fn setup_camera(mut commands: Commands) {
+    commands.spawn(Camera2dBundle::default());
 }
 
 // struct RemoveEvent(Entity, TilePos);
