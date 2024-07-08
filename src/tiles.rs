@@ -8,13 +8,13 @@ impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(Board::new(12, 12));
         app.observe(on_add_tile);
-        app.add_systems(Startup, setup_board);
+        // app.add_systems(Startup, setup_board);
         app.add_systems(Update, set_tiles);
     }
 }
 
-const TILE_SIZE: UVec2 = UVec2::new(48, 54);
-const BOARD_SIZE: UVec2 = UVec2::new(12, 12);
+pub const TILE_SIZE: UVec2 = UVec2::new(48, 54);
+pub const BOARD_SIZE: UVec2 = UVec2::new(12, 12);
 
 #[derive(Component, Default)]
 struct Tile;
@@ -91,7 +91,7 @@ impl Board {
     }
 }
 
-fn setup_board(
+pub fn spawn_board(
     mut commands: Commands,
     board: Res<Board>,
     asset_server: Res<AssetServer>,
@@ -101,17 +101,18 @@ fn setup_board(
     let atlas_layout = TextureAtlasLayout::from_grid((48, 56).into(), 3, 3, None, None);
     let atlas_layouts = layouts.add(atlas_layout);
     for ((x, y), e) in board.tiles.indexed_iter() {
+        let pos = Position::new(x, y);
         // println!("{:?}, {:?}", x, y);
         commands.spawn(TileBundle {
             tile: Tile,
-            position: Position::new(x, y),
             color: rand::random::<Color>(),
             shape: rand::random::<Shape>(),
             sprite: SpriteBundle {
                 texture: shapes.clone(),
-                transform: position_to_transform(Position::new(x, y)),
+                transform: position_to_transform(&pos),
                 ..default()
             },
+            position: pos,
             atlas: TextureAtlas {
                 layout: atlas_layouts.clone(),
                 index: 0,
@@ -138,7 +139,7 @@ fn set_tiles(mut query: Query<(&Color, &Shape, &mut TextureAtlas)>) {
     }
 }
 
-pub fn position_to_transform(position: Position) -> Transform {
+pub fn position_to_transform(position: &Position) -> Transform {
     let board_size = BOARD_SIZE.as_vec2() * TILE_SIZE.as_vec2();
     let offset = board_size / 2. - TILE_SIZE.as_vec2() / 2.;
     let pos = position.as_vec2() * TILE_SIZE.as_vec2();

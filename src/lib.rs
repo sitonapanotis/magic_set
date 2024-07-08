@@ -10,7 +10,10 @@ use rand::{
 
 use tiles::{Color, Shape, TileBundle};
 
-use crate::tiles::BoardPlugin;
+use crate::{
+    cursor::{spawn_cursor, CursorPlugin},
+    tiles::{spawn_board, BoardPlugin},
+};
 mod cursor;
 mod tiles;
 
@@ -18,8 +21,9 @@ pub struct MagicSetPlugin;
 
 impl Plugin for MagicSetPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(BoardPlugin);
+        app.add_plugins((BoardPlugin, CursorPlugin));
         app.add_systems(Startup, setup_camera);
+        app.add_systems(Startup, (spawn_board, spawn_cursor).chain());
         // app.add_plugin(TilemapPlugin)
         //     .add_event::<RemoveEvent>()
         //     .add_event::<MoveEvent>()

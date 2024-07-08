@@ -9,14 +9,15 @@ edition = "2021"
 rand = "0.8"
 strum = "0.26"
 grid = "0.14"
-bevy = "=0.14.0-rc.4"
+bevy = "0.14.0"
 # bevy = { git = "https://github.com/bevyengine/bevy"}
 # iyes_loopless = "0.9"
 # remove tilmap dep
 # bevy_ecs_tilemap = { git = "https://github.com/StarArawn/bevy_ecs_tilemap", features = [ "atlas" ]}
 
 
-leafwing-input-manager = { git = "https://github.com/Leafwing-Studios/leafwing-input-manager.git" }
+# leafwing-input-manager = { git = "https://github.com/Leafwing-Studios/leafwing-input-manager.git" }
+leafwing-input-manager = "0.14"
 # bevy-inspector-egui = { version = "0.14", optional = true }
 
 [features]
