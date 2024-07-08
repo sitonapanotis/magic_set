@@ -78,12 +78,6 @@ fn setup_camera(mut commands: Commands) {
 //     Match,
 // }
 
-#[derive(Component)]
-enum State {
-    Idle,
-    Select,
-}
-
 // struct TilemapMetadata {
 //     size: TilemapSize,
 //     grid_size: TilemapGridSize,

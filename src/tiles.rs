@@ -31,7 +31,7 @@ pub struct TileBundle {
 }
 
 #[derive(Component, Deref, DerefMut)]
-pub struct Position(UVec2);
+pub struct Position(pub UVec2);
 
 impl Position {
     pub fn new(x: usize, y: usize) -> Self {
