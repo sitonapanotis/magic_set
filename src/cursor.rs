@@ -1,6 +1,6 @@
 //cursor
 
-use crate::tiles::{position_to_transform, Board, Position, BOARD_SIZE, TILE_SIZE};
+use crate::tiles::{position_to_transform, Board, Position, Tile, BOARD_SIZE, TILE_SIZE};
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
@@ -29,11 +29,7 @@ enum State {
     Select,
 }
 
-pub fn spawn_cursor(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    // board: Res<Board>,
-) {
+pub fn spawn_cursor(mut commands: Commands, asset_server: Res<AssetServer>) {
     let handle: Handle<Image> = asset_server.load("cursor_w.png");
     let pos = Position::new(0, 0);
 
@@ -75,7 +71,14 @@ fn move_cursor(
     }
 }
 
-fn mark() {}
+fn mark(
+    q_cursor: Query<(&Position, &ActionState<CursorAction>), (With<Tile>, Without<Cursor>)>,
+    q_tile: Query<&Position, (With<Cursor>, Without<Tile>)>,
+    // board: Res<Board>,
+    mut commands: Commands,
+) {
+    for (pos, action_state) in q_cursor.iter() {}
+}
 
 // fn set_mark(
 //     mut move_reader: EventReader<MoveEvent>,

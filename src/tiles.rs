@@ -17,7 +17,7 @@ pub const TILE_SIZE: UVec2 = UVec2::new(48, 54);
 pub const BOARD_SIZE: UVec2 = UVec2::new(12, 12);
 
 #[derive(Component, Default)]
-struct Tile;
+pub struct Tile;
 // state:
 
 #[derive(Bundle)]
@@ -89,6 +89,7 @@ impl Board {
             tiles: Grid::new_with_order(rows, cols, Order::ColumnMajor),
         }
     }
+    // fn get_tile(position: Position)
 }
 
 pub fn spawn_board(
