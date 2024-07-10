@@ -17,6 +17,9 @@ impl Plugin for CursorPlugin {
 #[derive(Component)]
 pub struct Cursor;
 
+#[derive(Component)]
+pub struct Mark;
+
 #[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
 pub enum CursorAction {
     Move,
@@ -72,12 +75,19 @@ fn move_cursor(
 }
 
 fn mark(
-    q_cursor: Query<(&Position, &ActionState<CursorAction>), (With<Tile>, Without<Cursor>)>,
-    q_tile: Query<&Position, (With<Cursor>, Without<Tile>)>,
-    // board: Res<Board>,
+    query: Query<(&Position, &ActionState<CursorAction>), With<Cursor>>,
+    board: Res<Board>,
     mut commands: Commands,
 ) {
-    for (pos, action_state) in q_cursor.iter() {}
+    for (position, action_state) in query.iter() {
+        if action_state.just_pressed(&CursorAction::Select) {
+            if let Some(slot) = board.tiles.get(position.x, position.y) {
+                if let Some(entity) = slot {
+                    commands.entity(*entity).insert(Mark);
+                }
+            }
+        }
+    }
 }
 
 // fn set_mark(

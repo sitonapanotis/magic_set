@@ -8,6 +8,7 @@ impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(Board::new(12, 12));
         app.observe(on_add_tile);
+        app.observe(on_remove_tile);
         // app.add_systems(Startup, setup_board);
         app.add_systems(Update, set_tiles);
     }
@@ -154,10 +155,21 @@ fn on_add_tile(
     mut board: ResMut<Board>,
 ) {
     let tile_pos = query.get(trigger.entity()).unwrap();
-    if let Some(mut entity) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
-        *entity = Some(trigger.entity());
+    if let Some(mut slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
+        *slot = Some(trigger.entity());
     }
     //set transform from position?
+}
+
+fn on_remove_tile(
+    trigger: Trigger<OnRemove, Tile>,
+    query: Query<&Position, With<Tile>>,
+    mut board: ResMut<Board>,
+) {
+    let tile_pos = query.get(trigger.entity()).unwrap();
+    if let Some(mut slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
+        *slot = None;
+    }
 }
 
 fn move_tile(mut query: Query<(Entity, &Position, &Tile)>, board: ResMut<Board>) {
