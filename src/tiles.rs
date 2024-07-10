@@ -155,7 +155,7 @@ fn on_add_tile(
     mut board: ResMut<Board>,
 ) {
     let tile_pos = query.get(trigger.entity()).unwrap();
-    if let Some(mut slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
+    if let Some(slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
         *slot = Some(trigger.entity());
     }
     //set transform from position?
@@ -167,12 +167,12 @@ fn on_remove_tile(
     mut board: ResMut<Board>,
 ) {
     let tile_pos = query.get(trigger.entity()).unwrap();
-    if let Some(mut slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
+    if let Some(slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
         *slot = None;
     }
 }
 
-fn move_tile(mut query: Query<(Entity, &Position, &Tile)>, board: ResMut<Board>) {
+fn move_tile(query: Query<(Entity, &Position, &Tile)>, board: ResMut<Board>) {
     //move event? OnInsert?
     //moev the tile, set a moving state, do some animation shit?
 }

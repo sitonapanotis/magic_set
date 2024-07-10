@@ -3,12 +3,7 @@ use bevy::prelude::*;
 #[cfg(feature = "debug")]
 use bevy_inspector_egui::{egui::Event, Inspectable, RegisterInspectable};
 
-use rand::{
-    distributions::{Distribution, Standard},
-    Rng,
-};
 
-use tiles::{Color, Shape, TileBundle};
 
 use crate::{
     cursor::{spawn_cursor, CursorPlugin},

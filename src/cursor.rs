@@ -1,6 +1,6 @@
 //cursor
 
-use crate::tiles::{position_to_transform, Board, Position, Tile, BOARD_SIZE, TILE_SIZE};
+use crate::tiles::{position_to_transform, Board, Position, BOARD_SIZE};
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
