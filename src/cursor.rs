@@ -9,8 +9,7 @@ pub struct CursorPlugin;
 impl Plugin for CursorPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(InputManagerPlugin::<CursorAction>::default());
-        app.add_systems(Update, move_cursor);
-        // app.add_systems(Startup, spawn_cursor);
+        app.add_systems(Update, (move_cursor, mark).chain());
     }
 }
 
@@ -60,7 +59,6 @@ fn move_cursor(
 ) {
     for (mut position, mut transform, action_state) in query.iter_mut() {
         if action_state.just_pressed(&CursorAction::Move) {
-            println!("should move");
             let direction = action_state
                 .clamped_axis_pair(&CursorAction::Move)
                 .unwrap_or_default()
@@ -74,17 +72,20 @@ fn move_cursor(
     }
 }
 
-fn mark(
+pub fn mark(
     query: Query<(&Position, &ActionState<CursorAction>), With<Cursor>>,
     board: Res<Board>,
     mut commands: Commands,
 ) {
     for (position, action_state) in query.iter() {
         if action_state.just_pressed(&CursorAction::Select) {
-            if let Some(slot) = board.tiles.get(position.x, position.y) {
-                if let Some(entity) = slot {
-                    commands.entity(*entity).insert(Mark);
-                }
+            if let Some(Some(entity)) = board.tiles.get(position.x, position.y) {
+                commands.entity(*entity).despawn();
+                // commands.entity(*entity).insert(Mark);
+                // println!("marked tile at {:?}", position);
+                // println!("despawned tile at {:?}", position);
+                // } else {
+                // println!("no tile to despawn at {:?}", position);
             }
         }
     }

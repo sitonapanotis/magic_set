@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use grid::{Grid, Order};
 use rand::{distributions::Standard, prelude::Distribution, Rng};
 
+use crate::cursor::mark;
+
 pub struct BoardPlugin;
 
 impl Plugin for BoardPlugin {
@@ -10,7 +12,8 @@ impl Plugin for BoardPlugin {
         app.observe(on_add_tile);
         app.observe(on_remove_tile);
         // app.add_systems(Startup, setup_board);
-        app.add_systems(Update, set_tiles);
+        // app.add_systems(Update, (set_tiles, gravity));
+        app.add_systems(Update, (set_tiles, gravity.after(mark)));
     }
 }
 
@@ -31,8 +34,21 @@ pub struct TileBundle {
     atlas: TextureAtlas,
 }
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Debug, Deref, DerefMut, PartialEq, Eq)]
 pub struct Position(pub UVec2);
+
+impl PartialOrd for Position {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+        // self.0.y.partial_cmp(&other.0.y)
+    }
+}
+
+impl Ord for Position {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.0.y.cmp(&other.0.y)
+    }
+}
 
 impl Position {
     pub fn new(x: usize, y: usize) -> Self {
@@ -42,6 +58,9 @@ impl Position {
         })
     }
 }
+
+#[derive(Event)]
+pub struct Move;
 
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Color {
@@ -79,7 +98,7 @@ impl Distribution<Shape> for Standard {
     }
 }
 
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct Board {
     pub tiles: Grid<Option<Entity>>,
 }
@@ -153,11 +172,14 @@ fn on_add_tile(
     trigger: Trigger<OnAdd, Tile>,
     query: Query<&Position, With<Tile>>,
     mut board: ResMut<Board>,
+    mut commands: Commands,
 ) {
     let tile_pos = query.get(trigger.entity()).unwrap();
+    // println!("tile_pos on add {:?}", tile_pos);
     if let Some(slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
         *slot = Some(trigger.entity());
     }
+    commands.entity(trigger.entity()).observe(on_move_tile);
     //set transform from position?
 }
 
@@ -168,11 +190,47 @@ fn on_remove_tile(
 ) {
     let tile_pos = query.get(trigger.entity()).unwrap();
     if let Some(slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
+        println!("{:?}", slot);
         *slot = None;
     }
+    // println!("despawned entity {:?}", trigger.entity());
+    // println!("with tile_pos {:?}", tile_pos);
 }
 
-fn move_tile(query: Query<(Entity, &Position, &Tile)>, board: ResMut<Board>) {
-    //move event? OnInsert?
+fn on_move_tile(
+    trigger: Trigger<Move>,
+    mut query: Query<(Entity, &mut Transform, &Position), With<Tile>>,
+    board: ResMut<Board>,
+) {
+    // println!("on_move triggered");
+    if let Ok((entity, mut transform, position)) = query.get_mut(trigger.entity()) {
+        *transform = position_to_transform(position);
+        // println!("transform updated {:?}", transform);
+    }
     //moev the tile, set a moving state, do some animation shit?
+}
+
+fn gravity(
+    mut query: Query<(Entity, &mut Position), With<Tile>>,
+    mut board: ResMut<Board>,
+    mut commands: Commands,
+) {
+    //iterate slots starting from 2nd row
+    for x in 0..BOARD_SIZE.x as usize {
+        for y in 1..BOARD_SIZE.y as usize {
+            //if no tile is below
+            if board.tiles[(x, y - 1)].is_none() {
+                //and there is one here
+                if let Some(tile_entity) = board.tiles[(x, y)] {
+                    //swap them
+                    (board.tiles[(x, y)], board.tiles[(x, y - 1)]) =
+                        (board.tiles[(x, y - 1)], board.tiles[(x, y)]);
+                    if let Ok((e, mut position)) = query.get_mut(tile_entity) {
+                        position.y -= 1;
+                        commands.trigger_targets(Move, e);
+                    }
+                }
+            }
+        }
+    }
 }
