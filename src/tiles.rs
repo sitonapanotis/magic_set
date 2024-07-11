@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use grid::{Grid, Order};
 use rand::{distributions::Standard, prelude::Distribution, Rng};
 
-use crate::cursor::mark;
+// use crate::cursor::mark;
 
 pub struct BoardPlugin;
 
@@ -13,7 +13,7 @@ impl Plugin for BoardPlugin {
         app.observe(on_remove_tile);
         // app.add_systems(Startup, setup_board);
         // app.add_systems(Update, (set_tiles, gravity));
-        app.add_systems(Update, (set_tiles, gravity.after(mark)));
+        app.add_systems(Update, (set_tiles, gravity).chain());
     }
 }
 
@@ -76,6 +76,7 @@ pub enum Shape {
     Triangle,
     //Star,
     //Cross,
+    //Heart,
 }
 
 impl Distribution<Color> for Standard {
@@ -167,6 +168,12 @@ pub fn position_to_transform(position: &Position) -> Transform {
     Transform::from_xyz(pos.x - offset.x, pos.y - offset.y, 0.0)
 }
 
+pub fn position_and_z_to_transform(position: &Position, z: f32) -> Transform {
+    let mut transform = position_to_transform(position);
+    transform.translation.z = z;
+    transform
+}
+
 //add tile to the board at its position
 fn on_add_tile(
     trigger: Trigger<OnAdd, Tile>,
@@ -180,7 +187,6 @@ fn on_add_tile(
         *slot = Some(trigger.entity());
     }
     commands.entity(trigger.entity()).observe(on_move_tile);
-    //set transform from position?
 }
 
 fn on_remove_tile(
@@ -190,7 +196,7 @@ fn on_remove_tile(
 ) {
     let tile_pos = query.get(trigger.entity()).unwrap();
     if let Some(slot) = board.tiles.get_mut(tile_pos.x, tile_pos.y) {
-        println!("{:?}", slot);
+        // println!("{:?}", slot);
         *slot = None;
     }
     // println!("despawned entity {:?}", trigger.entity());
